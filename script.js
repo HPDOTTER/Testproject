@@ -9,10 +9,7 @@ let allNotes = {
 
 function init(){
     getFromLocalStorage();
-    rendernotes();
-    rendertrashnotes();
-    renderdonenotes();
-    console.table(allNotes);
+    renderAllnotes();
 }
 
 function moveNote(iNote, start, destination){
@@ -20,12 +17,15 @@ function moveNote(iNote, start, destination){
     allNotes[destination].push(note[0]);
     let notetitle = allNotes[start + "Title"].splice(iNote, 1);
     allNotes[destination + "Title"].push(notetitle[0]);
-    console.table(allNotes);
+    renderAllnotes();
+    saveToLocalStorage();
+}
+
+function renderAllnotes(){
     rendernotes();
     rendertrashnotes();
     renderdonenotes();
-    saveToLocalStorage();
-}
+};
 
 function rendernotes(){
     let contentRef = document.getElementById('content');
@@ -52,7 +52,6 @@ function renderdonenotes(){
     }
 }
 
-// notizen hinzufügen
 function addNote(){
     let noteInputRef = document.getElementById('noteInput');
     let titleInputRef = document.getElementById('titleInput');
@@ -73,24 +72,16 @@ function addNote(){
 function moveToDoneComplete(idoneNote){
     allNotes.doneNotes.splice(idoneNote, 1);
     allNotes.doneNotesTitle.splice(idoneNote, 1);
-
-    rendernotes();
-    renderdonenotes();
-    rendertrashnotes();
+    renderAllnotes();
     saveToLocalStorage();
 }
-//notiz löschen
-//notiz komplett löschen
+
 function deleteNoteComplete(itrashNote){
     allNotes.trashNotes.splice(itrashNote, 1);
     allNotes.trashNotesTitle.splice(itrashNote, 1);
-
-    rendernotes();
-    renderdonenotes();
-    rendertrashnotes();
+    renderAllnotes();
     saveToLocalStorage();
 }
-
 
 function saveToLocalStorage(){
     localStorage.setItem('allNotes.notes', JSON.stringify(allNotes.notes));
@@ -100,6 +91,7 @@ function saveToLocalStorage(){
     localStorage.setItem('allNotes.doneNotes', JSON.stringify(allNotes.doneNotes));
     localStorage.setItem('allNotes.donenotestitle', JSON.stringify(allNotes.doneNotesTitle));
 }
+
 function getFromLocalStorage() {
     if (localStorage.getItem('allNotes.notes')) {
         allNotes.notes = JSON.parse(localStorage.getItem('allNotes.notes'));
@@ -120,11 +112,3 @@ function getFromLocalStorage() {
         allNotes.doneNotesTitle = JSON.parse(localStorage.getItem('allNotes.donenotestitle'));
     }
 }
-
-//ich muss definieren wo sie anzuzeigen sind
-// -> wann werden sie angezeigt
-
-
-
-// notizen löschen
-// notizen archivieren
