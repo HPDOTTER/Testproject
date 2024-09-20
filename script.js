@@ -1,22 +1,37 @@
-let notestitle= ['Frucht', 'Aufgabe'];
-let notes= ['Banana', 'Rasen mähen'];
-let trashNotes = [];
-let trashnotestitle =[];
-let doneNotes = [];
-let donenotestitle = [];
+let allNotes = {
+    'notes': ['Banana', 'Rasen mähen'],
+    'notesTitle': ['Frucht', 'Aufgabe'],
+    'trashNotes': [],
+    'trashNotesTitle': [],
+    'doneNotes': [],
+    'doneNotesTitle': [],
+};
 
 function init(){
     getFromLocalStorage();
     rendernotes();
     rendertrashnotes();
     renderdonenotes();
+    console.table(allNotes);
+}
+
+function moveNote(iNote, start, destination){
+    let note = allNotes[start].splice(iNote, 1);
+    allNotes[destination].push(note[0]);
+    let notetitle = allNotes[start + "Title"].splice(iNote, 1);
+    allNotes[destination + "Title"].push(notetitle[0]);
+    console.table(allNotes);
+    rendernotes();
+    rendertrashnotes();
+    renderdonenotes();
+    saveToLocalStorage();
 }
 
 function rendernotes(){
     let contentRef = document.getElementById('content');
     contentRef.innerHTML = '';
 
-    for (let iNote = 0; iNote < notes.length; iNote++) {
+    for (let iNote = 0; iNote < allNotes.notes.length; iNote++) {
         contentRef.innerHTML += getNoteTemplate(iNote);  
     }
 }
@@ -24,7 +39,7 @@ function rendertrashnotes(){
     let trashcontentRef = document.getElementById('trash-content');
     trashcontentRef.innerHTML = '';
 
-    for (let itrashNote = 0; itrashNote < trashNotes.length; itrashNote++) {
+    for (let itrashNote = 0; itrashNote < allNotes.trashNotes.length; itrashNote++) {
         trashcontentRef.innerHTML += gettrashNoteTemplate(itrashNote);  
     }
 }
@@ -32,7 +47,7 @@ function renderdonenotes(){
     let donecontentRef = document.getElementById('done-content');
     donecontentRef.innerHTML = '';
 
-    for (let idoneNote = 0; idoneNote < doneNotes.length; idoneNote++) {
+    for (let idoneNote = 0; idoneNote < allNotes.doneNotes.length; idoneNote++) {
         donecontentRef.innerHTML += getdoneNoteTemplate(idoneNote);  
     }
 }
@@ -42,8 +57,8 @@ function addNote(){
     let noteInputRef = document.getElementById('noteInput');
     let titleInputRef = document.getElementById('titleInput');
     if (noteInputRef.value != "" && titleInputRef.value != "") {
-        notes.push(noteInputRef.value);
-        notestitle.push(titleInputRef.value);
+        allNotes.notes.push(noteInputRef.value);
+        allNotes.notesTitle.push(titleInputRef.value);
     }
     if (noteInputRef.value === "" || titleInputRef.value === "") {
         alert("Bitte füllen Sie beide Felder aus.");
@@ -55,20 +70,9 @@ function addNote(){
     titleInputRef.value = '';
 }
 
-function movetodone(iNote){
-    let doneNote = notes.splice(iNote, 1);
-    doneNotes.push(doneNote[0]);
-    let donenotetitle = notestitle.splice(iNote, 1);
-    donenotestitle.push(donenotetitle[0]);
-
-    rendernotes();
-    renderdonenotes();
-    rendertrashnotes();
-    saveToLocalStorage();
-}
-function movetodonecomplete(idoneNote){
-    doneNotes.splice(idoneNote, 1);
-    donenotestitle.splice(idoneNote, 1);
+function moveToDoneComplete(idoneNote){
+    allNotes.doneNotes.splice(idoneNote, 1);
+    allNotes.doneNotesTitle.splice(idoneNote, 1);
 
     rendernotes();
     renderdonenotes();
@@ -76,22 +80,10 @@ function movetodonecomplete(idoneNote){
     saveToLocalStorage();
 }
 //notiz löschen
-function deleteNote(iNote){
-    let trashNote = notes.splice(iNote, 1);
-    trashNotes.push(trashNote[0]);
-    let trashnotetitle = notestitle.splice(iNote, 1);
-    trashnotestitle.push(trashnotetitle[0]);
-
-    rendernotes();
-    renderdonenotes();
-    rendertrashnotes();
-    saveToLocalStorage();
-}
-
 //notiz komplett löschen
-function deleteNotecomplete(itrashNote){
-    trashNotes.splice(itrashNote, 1);
-    trashnotestitle.splice(itrashNote, 1);
+function deleteNoteComplete(itrashNote){
+    allNotes.trashNotes.splice(itrashNote, 1);
+    allNotes.trashNotesTitle.splice(itrashNote, 1);
 
     rendernotes();
     renderdonenotes();
@@ -101,37 +93,33 @@ function deleteNotecomplete(itrashNote){
 
 
 function saveToLocalStorage(){
-    localStorage.setItem('notes', JSON.stringify(notes));
-    localStorage.setItem('notestitle', JSON.stringify(notestitle));
-    localStorage.setItem('trashNotes', JSON.stringify(trashNotes));
-    localStorage.setItem('trashnotestitle', JSON.stringify(trashnotestitle));
-    localStorage.setItem('doneNotes', JSON.stringify(doneNotes));
-    localStorage.setItem('donenotestitle', JSON.stringify(donenotestitle));
+    localStorage.setItem('allNotes.notes', JSON.stringify(allNotes.notes));
+    localStorage.setItem('allNotes.notestitle', JSON.stringify(allNotes.notesTitle));
+    localStorage.setItem('allNotes.trashNotes', JSON.stringify(allNotes.trashNotes));
+    localStorage.setItem('allNotes.trashnotestitle', JSON.stringify(allNotes.trashNotesTitle));
+    localStorage.setItem('allNotes.doneNotes', JSON.stringify(allNotes.doneNotes));
+    localStorage.setItem('allNotes.donenotestitle', JSON.stringify(allNotes.doneNotesTitle));
 }
 function getFromLocalStorage() {
-    if (localStorage.getItem('notes')) {
-        notes = JSON.parse(localStorage.getItem('notes'));
+    if (localStorage.getItem('allNotes.notes')) {
+        allNotes.notes = JSON.parse(localStorage.getItem('allNotes.notes'));
     }
-    if (localStorage.getItem('notestitle')) {
-        notestitle = JSON.parse(localStorage.getItem('notestitle'));
+    if (localStorage.getItem('allNotes.notestitle')) {
+        allNotes.notesTitle = JSON.parse(localStorage.getItem('allNotes.notestitle'));
     }
-    if (localStorage.getItem('trashNotes')) {
-        trashNotes = JSON.parse(localStorage.getItem('trashNotes'));
+    if (localStorage.getItem('allNotes.trashNotes')) {
+        allNotes.trashNotes = JSON.parse(localStorage.getItem('allNotes.trashNotes'));
     }
-    if (localStorage.getItem('trashnotestitle')) {
-        trashnotestitle = JSON.parse(localStorage.getItem('trashnotestitle'));
+    if (localStorage.getItem('allNotes.trashnotestitle')) {
+        allNotes.trashNotesTitle = JSON.parse(localStorage.getItem('allNotes.trashnotestitle'));
     }
-    if (localStorage.getItem('doneNotes')) {
-        doneNotes = JSON.parse(localStorage.getItem('doneNotes'));
+    if (localStorage.getItem('allNotes.doneNotes')) {
+        allNotes.doneNotes = JSON.parse(localStorage.getItem('allNotes.doneNotes'));
     }
-    if (localStorage.getItem('donenotestitle')) {
-        donenotestitle = JSON.parse(localStorage.getItem('donenotestitle'));
+    if (localStorage.getItem('allNotes.donenotestitle')) {
+        allNotes.doneNotesTitle = JSON.parse(localStorage.getItem('allNotes.donenotestitle'));
     }
 }
-
-document.addEventListener('DOMContentLoaded', (event) => {
-    init();
-});
 
 //ich muss definieren wo sie anzuzeigen sind
 // -> wann werden sie angezeigt
